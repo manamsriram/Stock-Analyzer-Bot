@@ -1,23 +1,24 @@
 import json
-import time
 from bs4 import BeautifulSoup
 import re
 import requests
 
 from langchain.llms import OpenAI
-from langchain.agents import load_tools, AgentType, Tool, initialize_agent
+from langchain.agents import load_tools, AgentType, Tool
 import yfinance as yf
 
-import openai
+from openai import OpenAI
 import warnings
 import os
 warnings.filterwarnings("ignore")
 
-os.environ["OPENAI_API_KEY"] = "Enter your API key here"
+OPENAI_API_KEY="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"
 
+client = OpenAI(api_key=OPENAI_API_KEY)
 
-llm=OpenAI(temperature=0,
-           model_name="gpt-3.5-turbo-16k-0613")
+from langchain.chat_models import ChatOpenAI
+
+llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-16k-0613",openai_api_key=OPENAI_API_KEY)
 
 
 # Fetch stock data from Yahoo Finance
@@ -111,21 +112,40 @@ function=[
 
 
 def get_stock_ticker(query):
-    response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            temperature=0,
-            messages=[{
-                "role":"user",
-                "content":f"Given the user request, what is the comapany name and the company stock ticker ?: {query}?"
-            }],
-            functions=function,
-            function_call={"name": "get_company_Stock_ticker"},
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        temperature=0,
+        messages=[{
+            "role": "user",
+            "content": f"Given the user request, what is the company name and the company stock ticker?: {query}?"
+        }],
+        functions=[
+            {
+                "name": "get_company_Stock_ticker",
+                "description": "This will get the indian NSE/BSE stock ticker of the company",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "ticker_symbol": {
+                            "type": "string",
+                            "description": "This is the stock symbol of the company.",
+                        },
+                        "company_name": {
+                            "type": "string",
+                            "description": "This is the name of the company given in query",
+                        }
+                    },
+                    "required": ["company_name", "ticker_symbol"],
+                },
+            }
+        ],
+        function_call={"name": "get_company_Stock_ticker"},
     )
-    message = response["choices"][0]["message"]
-    arguments = json.loads(message["function_call"]["arguments"])
+    message = response.choices[0].message
+    arguments = json.loads(message.function_call.arguments)
     company_name = arguments["company_name"]
     company_ticker = arguments["ticker_symbol"]
-    return company_name,company_ticker
+    return company_name, company_ticker
 
 def Anazlyze_stock(query):
     #agent.run(query) Outputs Company name, Ticker
@@ -148,3 +168,8 @@ def Anazlyze_stock(query):
     # print(analysis)
 
     return analysis
+
+try:
+    out = Anazlyze_stock("Shall I invest in Adani power right now?")
+except Exception as e:
+    print(f"An error occurred: {e}")
