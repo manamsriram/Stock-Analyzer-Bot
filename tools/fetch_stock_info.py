@@ -12,13 +12,13 @@ import warnings
 import os
 warnings.filterwarnings("ignore")
 
-OPENAI_API_KEY="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"
+OPENAI_API_KEY="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"
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 from langchain.chat_models import ChatOpenAI
 
-llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-16k-0613",openai_api_key=OPENAI_API_KEY)
+llm = ChatOpenAI(temperature=0, model_name="gpt-4-turbo",openai_api_key=OPENAI_API_KEY)
 
 
 # Fetch stock data from Yahoo Finance
@@ -113,7 +113,7 @@ function=[
 
 def get_stock_ticker(query):
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4-turbo",
         temperature=0,
         messages=[{
             "role": "user",
