@@ -22,5 +22,5 @@ All these factors seems sufficient for the analysis, it captures historical perf
 - And in the later stages stock data, news, financial statements are simply fetched by inputing ticker symbol. Further analyzed by openai llm
 
  # Further improvements and addition to be done
-a) More tools can be added. Fo eg. math tool to perform complex technical analysis \
-b) Support of other opensource LLMS \
+a) More tools can be added. Fo eg. math tool to perform complex technical analysis 
+b) Support of other opensource LLMS 
