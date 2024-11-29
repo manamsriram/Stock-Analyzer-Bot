@@ -77,14 +77,14 @@ with st.sidebar:
                 if check_credentials(username, password):
                     st.session_state.logged_in = True
                     st.session_state.username = username
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error("Invalid credentials")
     else:
         st.write(f"Logged in as {st.session_state.username}")
         if st.button("Logout"):
             st.session_state.logged_in = False
-            st.experimental_rerun()
+            st.rerun()
 
 # Main app
 if st.session_state.logged_in:
@@ -104,7 +104,7 @@ if st.session_state.logged_in:
         st.markdown(' ')
 
     if enter and query:
-        with st.spinner('Gathering all required information and analyzing. Be patient!!!!!'):
+        with st.spinner('Gathering all required information and analyzing.'):
             out = Anazlyze_stock(query)
             # Save query to database
             save_query(st.session_state.username, query, out)
