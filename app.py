@@ -1,7 +1,4 @@
 import streamlit as st
-<<<<<<< Updated upstream
-from tools.fetch_stock_info import Anazlyze_stock
-=======
 import sqlite3
 import hashlib
 from datetime import datetime
@@ -9,27 +6,42 @@ import pika
 import json
 import threading
 from tools.fetch_stock_info import Anazlyze_stock, get_stock_price
->>>>>>> Stashed changes
 
-st.title("Stock Analysis bot")
-st.write("This bot scraps and gathers real time stock realted information and analyzes it using LLM")
+def init_db():
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS users
+                 (username TEXT PRIMARY KEY, 
+                  password TEXT,
+                  email TEXT,
+                  full_name TEXT,
+                  created_at DATETIME)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS queries
+                 (username TEXT, query TEXT, response TEXT, timestamp DATETIME)''')
+    conn.commit()
+    conn.close()
 
-query = st.text_input('Input your investment related query:') 
+def make_hash(password):
+    return hashlib.sha256(str.encode(password)).hexdigest()
 
-Enter=st.button("Enter")
-clear=st.button("Clear")
+def check_credentials(username, password):
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute('SELECT password FROM users WHERE username=?', (username,))
+    stored_password = c.fetchone()
+    conn.close()
+    if stored_password:
+        return stored_password[0] == make_hash(password)
+    return False
 
-if clear:
-    print(clear)
-    st.markdown(' ')
+def username_exists(username):
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute('SELECT username FROM users WHERE username=?', (username,))
+    result = c.fetchone()
+    conn.close()
+    return result is not None
 
-<<<<<<< Updated upstream
-if Enter:
-    with st.spinner('Gathering all required information and analyzing. Be patient!!!!!'):
-        out=Anazlyze_stock(query)
-    st.success('Done!')
-    st.write(out)
-=======
 def email_exists(email):
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
@@ -244,4 +256,3 @@ if st.session_state.logged_in:
 else:
     st.title("Welcome to Stock Analysis Bot")
     st.write("Please login or register to continue")
->>>>>>> Stashed changes
