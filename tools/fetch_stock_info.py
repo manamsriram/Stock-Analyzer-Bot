@@ -12,6 +12,7 @@ import warnings
 import os
 warnings.filterwarnings("ignore")
 
+<<<<<<< Updated upstream
 OPENAI_API_KEY="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"
 
 client = OpenAI(api_key=OPENAI_API_KEY)
@@ -36,6 +37,26 @@ def get_stock_price(ticker,history=5):
     # print(df.columns)
     
     return df.to_string()
+=======
+def get_stock_price(ticker, history=5):
+    try:
+        if "." in ticker:
+            ticker = ticker.split(".")[0]
+        ticker = ticker + ".NS"
+        stock = yf.Ticker(ticker)
+        df = stock.history(period="1y")
+        if df.empty:
+            return f"No data available for {ticker}"
+        df = df[["Close", "Volume"]]
+        df.index = [str(x).split()[0] for x in list(df.index)]
+        df.index.rename("Date", inplace=True)
+        df = df[-history:]
+        return df.to_string()
+    except Exception as e:
+        return f"Error retrieving data for {ticker}: {str(e)}"
+
+print(get_stock_price("TITAN"))
+>>>>>>> Stashed changes
 
 # Script to scrap top5 googgle news for given company name
 def google_query(search_term):
@@ -85,6 +106,44 @@ def get_financial_statements(ticker):
     balance_sheet=balance_sheet.dropna(how="any")
     balance_sheet = balance_sheet.to_string()
     return balance_sheet
+<<<<<<< Updated upstream
+=======
+print(get_financial_statements("TATAPOWER.NS"))
+
+# %% [markdown]
+# ### Custom tools
+
+# %%
+from langchain.tools import DuckDuckGoSearchRun
+search=DuckDuckGoSearchRun()
+print(search("Stock news India"))
+
+# %%
+# Making tool list
+
+tools=[
+    Tool(
+        name="get stock data",
+        func=get_stock_price,
+        description="Use when you are asked to evaluate or analyze a stock. This will output historic share price data. You should input the the stock ticker to it "
+    ),
+    Tool(
+        name="DuckDuckGo Search",
+        func=search.run,
+        description="Use only when you need to get NSE/BSE stock ticker from internet, you can also get recent stock related news. Dont use it for any other analysis or task"
+    ),
+    Tool(
+        name="get recent news",
+        func=get_recent_stock_news,
+        description="Use this to fetch recent news about stocks"
+    ),
+
+    Tool(
+        name="get financial statements",
+        func=get_financial_statements,
+        description="Use this to get financial statement of the company. With the help of this data companys historic performance can be evaluaated. You should input stock ticker to it"
+    ) 
+>>>>>>> Stashed changes
 
 
 #Openai function calling
@@ -147,6 +206,12 @@ def get_stock_ticker(query):
     company_ticker = arguments["ticker_symbol"]
     return company_name, company_ticker
 
+<<<<<<< Updated upstream
+=======
+print(get_stock_ticker("How is ths stock of Paytm doing?"))
+
+# %%
+>>>>>>> Stashed changes
 def Anazlyze_stock(query):
     #agent.run(query) Outputs Company name, Ticker
     Company_name,ticker=get_stock_ticker(query)
