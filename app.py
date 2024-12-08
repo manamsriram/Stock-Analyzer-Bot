@@ -2,7 +2,7 @@ import streamlit as st
 import sqlite3
 import hashlib
 from datetime import datetime
-from tools.fetch_stock_info import Anazlyze_stock
+from tools.fetch_stock_info import Analyze_stock
 
 # Database initialization
 def init_db():
@@ -150,7 +150,7 @@ if st.session_state.logged_in:
 
     if enter and query:
         with st.spinner('Gathering all required information and analyzing.'):
-            out = Anazlyze_stock(query)
+            out = Analyze_stock(query)
             save_query(st.session_state.username, query, out)
         st.success('Done!')
         st.write(out)
