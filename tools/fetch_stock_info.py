@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import re
 import requests
 import warnings
+import json
 from langchain.agents import load_tools, AgentType, Tool, initialize_agent
 
 from langchain.agents import Tool
@@ -149,6 +150,8 @@ search=DuckDuckGoSearchRun()
 # %%
 # Making tool list
 
+import time
+
 def search_with_retry(query, max_retries=3, delay=2):
     for attempt in range(max_retries):
         try:
@@ -163,8 +166,13 @@ def search_with_retry(query, max_retries=3, delay=2):
 tools = [
     Tool(
         name="get stock data",
-        func=get_stock_price,
-        description="Use when you are asked to evaluate or analyze a stock. Input format: ticker,exchange "
+        func=lambda x: get_stock_price(*x.split(',')),  # Handle comma-separated input
+        description="Input format: ticker,exchange"
+    ),
+    Tool(
+        name="get financial statements",
+        func=lambda x: get_financial_statements(*x.split(',')),
+        description="Input format: ticker,exchange"
     ),
     Tool(
         name="DuckDuckGo Search",
@@ -176,11 +184,6 @@ tools = [
         func=get_recent_stock_news,
         description="Use this to fetch recent news about stocks"
     ),
-    Tool(
-        name="get financial statements",
-        func=get_financial_statements,
-        description="Get financial statements using ticker and exchange. Input format: ticker,exchange "
-    )
 ]
 
 # %%
@@ -201,7 +204,11 @@ Note- if you fail in satisfying any step, move to next one
 2) Use "get stock data" tool with ticker and exchange to gather stock info
 3) Get company's financial data using "get financial statements"
 4) Use "get recent news" tool for latest stock news
-5) Analyze the stock based on gathered data and provide detailed investment analysis with numbers and reasons
+5) Use "get recent news" tool for latest stock news
+6) Analyze the sentiment of the news articles using the keywords related to the company and stock price. 
+   - Positive news might indicate potential growth, while negative news could suggest risk. 
+7) Consider the news sentiment along with the data gathered from other tools to provide a more comprehensive analysis.
+8) Analyze the stock based on gathered data and provide detailed investment analysis with numbers and reasons
 
 Use the following format:
 
@@ -225,7 +232,7 @@ Thought:{agent_scratchpad}"""
 from langchain.chat_models import ChatOpenAI
 from openai import OpenAI
 
-OPENAI_API_KEY="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"
+OPENAI_API_KEY="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"
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -253,56 +260,66 @@ def create_stock_analyzer():
 # %%
 #Openai function calling
 
-import json
-
 def get_stock_ticker(query):
     try:
         response = client.chat.completions.create(
-            model="gpt-4-turbo",
+            model="gpt-4-1106-preview",
             messages=[{
+                "role": "system",
+                "content": "You are a financial expert who identifies company names and their stock tickers. Always provide the most widely used exchange for the stock."
+            },
+            {
                 "role": "user",
-                "content": f"Given the user request, what is the company name, stock ticker, and exchange?: {query}?"
+                "content": f"Given the user request: '{query}', identify the company name, stock ticker symbol, and primary exchange where it trades."
             }],
-            functions=[{
-                "name": "get_company_Stock_ticker",
-                "description": "This will get the stock ticker of the company",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "ticker_symbol": {
-                            "type": "string",
-                            "description": "Stock symbol of the company"
+            tools=[{  # Changed from functions to tools
+                "type": "function",
+                "function": {
+                    "name": "get_company_Stock_ticker",
+                    "description": "Extract company name, stock ticker, and exchange information",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "ticker_symbol": {
+                                "type": "string",
+                                "description": "Stock symbol without any exchange suffix"
+                            },
+                            "company_name": {
+                                "type": "string",
+                                "description": "Full legal name of the company"
+                            },
+                            "exchange": {
+                                "type": "string",
+                                "description": "Primary stock exchange where the stock is listed",
+                                "enum": ["NSE", "BSE", "NYSE", "NASDAQ"]
+                            }
                         },
-                        "company_name": {
-                            "type": "string",
-                            "description": "Name of the company"
-                        },
-                        "exchange": {
-                            "type": "string",
-                            "description": "Stock exchange (NSE, BSE, NYSE, NASDAQ)",
-                            "enum": ["NSE", "BSE", "NYSE", "NASDAQ"]
-                        }
-                    },
-                    "required": ["company_name", "ticker_symbol", "exchange"]
+                        "required": ["company_name", "ticker_symbol", "exchange"]
+                    }
                 }
             }],
-            function_call={"name": "get_company_Stock_ticker"}
+            tool_choice={"type": "function", "function": {"name": "get_company_Stock_ticker"}}
         )
         
-        arguments = json.loads(response.choices[0].message.function_call.arguments)
-        return arguments["company_name"], arguments["ticker_symbol"], arguments["exchange"]
-        
+        function_args = response.choices[0].message.tool_calls[0].function.arguments
+        arguments = json.loads(function_args)
+        return (
+            arguments["company_name"],
+            arguments["ticker_symbol"],
+            arguments["exchange"]
+        )
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"Error in get_stock_ticker: {str(e)}")
         return None, None, None
 
 
 # %%
 def Analyze_stock(query):
-    agent = create_stock_analyzer()
     try:
+        agent = create_stock_analyzer()
         response = agent.run(query)
         return response
     except Exception as e:
-        return f"An error occurred during analysis: {str(e)}"
+        print(f"An error occurred: {e}")
+        return "Unable to complete the analysis due to an error."
 
