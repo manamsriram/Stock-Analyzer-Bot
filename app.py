@@ -134,6 +134,7 @@ with st.sidebar:
 # Main app
 if st.session_state.logged_in:
     st.title("Stock Analysis Bot")
+    st.subheader("Invest at your own risk!!")
     st.write("This bot scraps and gathers real time stock related information and analyzes it using LLM")
 
     # Query input
