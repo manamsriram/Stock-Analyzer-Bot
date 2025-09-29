@@ -1,26 +1,120 @@
-# Stock Analyzer 📈
-An AI Bot that can help you with stock investment by analyzing all the real-time as well as historic stock-related information with the help of LLM
+# Stock Analyzer Bot 📈
 
-# Motivation
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![LangChain](https://img.shields.io/badge/LangChain-AI-00B86B?logo=dataiku&logoColor=white)](https://langchain.com/)
+[![OpenAI](https://img.shields.io/badge/OpenAI-GPT4-10A37F?logo=openai&logoColor=white)](https://platform.openai.com/)
+[![yfinance](https://img.shields.io/badge/yfinance-Finance-73A1FB?logo=yahoo&logoColor=white)](https://pypi.org/project/yfinance/)
+[![DuckDuckGo](https://img.shields.io/badge/DuckDuckGo-Search-FE7A16?logo=duckduckgo&logoColor=white)](https://duckduckgo.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-As a retail investor, if you don't have a finance background or the capability to understand all the complicated financial terms, makes the stock analysis process really time-consuming. Every time I end up watching some fin-YouTuber's video or some random blog on the internet to avoid manually dealing with all this stuff. This is where i thought of making a Langchian and LLM-based bot that can take real-time as well as historic data to make investment analysis 
-<!--
-# How to run 
-All the code and experimentation can be found in <code>stock_analyzer_bot.ipynb</code> notebook. 
-You need to add openai_api_key in the initial code cell
-+-->
-# Experimentation
-Have defined a couple of tools/functions for the agent which scraps and gather real time information related to the input stock. It includes following- 
-1. Historic Stock price data. (You can take 1month, 1 year data depending on you models context length)
-2. Company's financial statement  
-3. Latest company related news  
-All these factors seems sufficient for the analysis, it captures historical performance as well as real time market sentiment. If you want further more tools can be added. 
+---
 
-#### Approach - Predefine prompt with function calls
-- Open ai has function calls, which is really helpful with which we can get structured output as we want in json format from LLM 
-- In this method stock ticker is extracted with the help of function calls. As most of the future code was dependet on this single argument
-- And in the later stages stock data, news, financial statements are simply fetched by inputing ticker symbol. Further analyzed by openai llm
+> **AI-powered Bot to analyze stocks using LLMs, real-time/historical price, financials, and news.**  
+> Get comprehensive investment insights from any device––no finance expertise required!
 
- # Further improvements and addition to be done
-a) More tools can be added. For eg. math tool to perform complex technical analysis \
-b) Support of other opensource LLMS 
+---
+
+## 🔥 Overview
+
+Stock Analyzer Bot uses LangChain, OpenAI LLMs, and live search/news/financial APIs to:
+- Fetch & analyze **real-time/historical stock prices**
+- Summarize **latest company news**
+- Parse **financial statements**
+- Return actionable investment analysis
+
+---
+
+## 🎯 Motivation
+
+Stock analysis can be overwhelming for everyday investors. This bot centralizes data, automates analysis, and translates jargon, so you can focus on making smart decisions—faster.
+
+---
+
+## 🚀 Features
+
+- **Conversational Q&A:** Ask investment questions in plain English.
+- **Comprehensive Pipeline:** Prices, news, financials—all in one workflow.
+- **Sentiment & Risk Analysis:** Latest market sentiment mixed with hard data.
+- **Integrated Dashboard:** History, authentication, easy exploration.
+- **Extensible Tools:** Add custom analysis, new data sources, or assets.
+
+---
+
+## 🛠️ Tech Stack
+
+| [![Python](https://img.shields.io/badge/-Python-3A75A6?logo=python)](https://www.python.org/) | [![Streamlit](https://img.shields.io/badge/-Streamlit-FF4B4B?logo=streamlit)](https://streamlit.io/) | [![LangChain](https://img.shields.io/badge/-LangChain-29B88A?logo=dataiku)](https://langchain.com/) | [![OpenAI](https://img.shields.io/badge/-OpenAI-10A37F?logo=openai)](https://openai.com/) | [![yfinance](https://img.shields.io/badge/-yfinance-73A1FB?logo=yahoo)](https://github.com/ranaroussi/yfinance) | [![DuckDuckGo](https://img.shields.io/badge/-DuckDuckGo-FE7A16?logo=duckduckgo)](https://duckduckgo.com/) | [![BeautifulSoup](https://img.shields.io/badge/-BeautifulSoup-4E8B93?logo=pypi)](https://www.crummy.com/software/BeautifulSoup/) | [![Pandas](https://img.shields.io/badge/-Pandas-150458?logo=pandas)](https://pandas.pydata.org/) |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+
+---
+
+## 📦 Installation
+
+git clone https://github.com/manamsriram/Stock-Analyzer-Bot.git
+cd Stock-Analyzer-Bot
+
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+pip install -r requirements.txt
+
+
+Add your OpenAI API key to a `.env` file:
+
+OPENAI_API_KEY=sk-xxxxxxx
+
+
+---
+
+## 🖥️ Usage
+
+streamlit run app.py
+
+Open the Streamlit link in your browser, register/login, and start asking investment questions!
+
+---
+
+## 🗂️ Example Queries
+
+- "Should I invest in Tesla this month?"
+- "Show me financials and latest news for Yes Bank."
+- "What's the outlook for Apple stock?"
+
+---
+
+## 🧰 Notebooks & Core Logic
+
+- **stock_analyzer_bot.ipynb** : Tool definitions, LLM workflow examples, testing
+- **app.py** : Streamlit web app, user authentication, query storage
+- **tools/fetch_stock_info.py** : All major tools for price, news, financials
+
+---
+
+## 🏗️ Roadmap
+
+- Add: Technical analysis, charting
+- Support: More open-source LLMs (Claude, Mistral, Llama, ...), new markets
+- Deploy: HuggingFace Spaces, Streamlit Cloud
+- Modular: Crypto, mutual funds, asset categories
+- Enhanced: Visual dashboard, search tools
+
+---
+
+## 👤 Author
+
+Sri Ram Mannam  
+[GitHub](https://github.com/manamsriram) | [LinkedIn](https://www.linkedin.com/in/sri-ram-mannam-8b61aa228/)
+
+---
+
+## 📜 License
+
+MIT License. See [`LICENSE`](LICENSE).
+
+---
+
+## 🌐 Demo
+
+Try it live: [stock-analyzer-bot.vercel.app](https://stock-analyzer-bot.vercel.app)
+
+---
